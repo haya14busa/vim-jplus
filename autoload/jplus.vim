@@ -9,6 +9,9 @@ function! s:extend_list(list)
 \		 : extend(deepcopy(a:list[0]), s:extend_list(a:list[1:]))
 endfunction
 
+function! s:is_visual(mode)
+	return (a:mode =~# "[vV\<C-v>]")
+endfunction
 
 
 function! jplus#getchar()
@@ -127,13 +130,16 @@ endfunction
 
 
 
-function! jplus#join(config) range
+function! jplus#join(config, mode)
 	if &modifiable == 0
 		return
 	endif
+	" `:func-range` emulation
+	let [firstline, lastline] = s:is_visual(a:mode) ?
+\		sort([line("'<"), line("'>")]) : [line('.'), line('.')]
 	let config = extend({
-\		"firstline" : a:firstline,
-\		"lastline"  : a:lastline,
+\		"firstline" : firstline,
+\		"lastline"  : lastline,
 \	}, a:config)
 	call s:join(config)
 endfunction
